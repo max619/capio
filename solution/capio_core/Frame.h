@@ -110,6 +110,11 @@ namespace cpio
 	struct Size
 	{
 		T width, height;
+
+		Size() : width(0), height(0) {}
+		Size(T w, T h) : width(w), height(h) {}
+
+
 		bool operator==(const Size<T>& rhs)
 		{
 			return width == rhs.width && height == rhs.height;
@@ -125,6 +130,9 @@ namespace cpio
 	struct Point
 	{
 		T x, y;
+
+		Point() : x(0), y(0) {}
+		Point(T x, T y) : x(x), y(y) {}
 	};
 
 	template<typename T>
@@ -132,6 +140,25 @@ namespace cpio
 	{
 		Point<T> topLeft;
 		Size<T> size;
+
+		Rectangle()
+		{
+			topLeft = {};
+			size = {};
+		}
+
+		Rectangle(Point<T> top, Size<T> size)
+		{
+			topLeft = top;
+			size = size;
+		}
+
+
+		Rectangle(T x, T y, T w, T h)
+		{
+			topLeft = { x, y };
+			size = { w, h };
+		}
 	};
 
 	struct Color
@@ -148,13 +175,14 @@ namespace cpio
 			r(r), g(g), b(b), a(a) {}
 	};
 
-#define CAPI_Assert_Image_ROI(img, roi) CAPI_Assert((img).GetImageBuffer().GetSize().width >= (roi).topLeft.x + (roi).size.width && (img).GetImageBuffer().GetSize().height >= (roi).topLeft.y + (roi).size.width)
+#define CAPI_Assert_Image_ROI(img, roi) CAPI_Assert((img).GetImageBuffer()->GetSize().width >= (roi).topLeft.x + (roi).size.width && (img).GetImageBuffer()->GetSize().height >= (roi).topLeft.y + (roi).size.width)
 #define CAPI_Assert_ROI(a, b) CAPI_Assert((a).size.width == (b).size.width && (a).size.height == (b).size.height)
 
 	class CAPIO_EXPORT ImageBuffer
 	{
 	public:
-		~ImageBuffer();
+		virtual ~ImageBuffer();
+		ImageBuffer(const ImageBuffer& other);
 		virtual void Release();
 		virtual void Resize(Size<uint32_t> size, PixelFormat fmt);
 		virtual void Allocate(Size<uint32_t> size, PixelFormat fmt);
@@ -166,15 +194,19 @@ namespace cpio
 		cpio::PixelFormat GetPixelFormat()  const;
 
 	protected:
+		ImageBuffer();
 		cpio::Size<uint32_t> imageSize = { 0,0 };
 		PixelFormat fmt;
 		size_t stride;
 	};
-	
+
 
 	class CAPIO_EXPORT SystemMemoryImageBuffer : public ImageBuffer
 	{
 	public:
+		SystemMemoryImageBuffer();
+		SystemMemoryImageBuffer(SystemMemoryImageBuffer& other);
+		~SystemMemoryImageBuffer();
 		void Release() override;
 		void Resize(Size<uint32_t> size, PixelFormat fmt) override;
 		void Allocate(Size<uint32_t> size, PixelFormat fmt) override;
@@ -197,8 +229,8 @@ namespace cpio
 		void ResetRoi();
 		void CopyTo(cpio::Image& other) const;
 		cpio::Rectangle<uint32_t> GetRoi() const;
-		const cpio::ImageBuffer& GetImageBuffer() const;
-		cpio::ImageBuffer& GetImageBuffer();
+		const cpio::UniquePtr<cpio::ImageBuffer>& GetImageBuffer() const;
+		cpio::UniquePtr<cpio::ImageBuffer>& GetImageBuffer();
 
 	private:
 		cpio::Rectangle<uint32_t> roi = {};

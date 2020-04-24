@@ -28,7 +28,16 @@ size_t GetMemoryPageSize()
 
 cpio::ImageBuffer::~ImageBuffer()
 {
-	Release();
+	//Release();
+}
+
+cpio::ImageBuffer::ImageBuffer()
+{
+}
+
+cpio::ImageBuffer::ImageBuffer(const ImageBuffer& buffer)
+{
+	ThrowException(cpio::NotImplementedException);
 }
 
 void cpio::ImageBuffer::Release()
@@ -71,6 +80,19 @@ cpio::PixelFormat cpio::ImageBuffer::GetPixelFormat() const
 	return fmt;
 }
 
+cpio::SystemMemoryImageBuffer::SystemMemoryImageBuffer()
+{
+}
+
+cpio::SystemMemoryImageBuffer::SystemMemoryImageBuffer(SystemMemoryImageBuffer& other)
+{
+}
+
+cpio::SystemMemoryImageBuffer::~SystemMemoryImageBuffer()
+{
+	Release();
+}
+
 void cpio::SystemMemoryImageBuffer::Release()
 {
 	if (data != nullptr)
@@ -96,6 +118,11 @@ void cpio::SystemMemoryImageBuffer::Resize(Size<uint32_t> size, PixelFormat fmt)
 		auto totalSize = stride * static_cast<size_t>(size.height);
 
 		data = _aligned_realloc(data, totalSize, GetMemoryPageSize());
+
+
+		this->imageSize = size;
+		this->fmt = fmt;
+		this->stride = stride;
 	}
 }
 
@@ -117,6 +144,10 @@ void cpio::SystemMemoryImageBuffer::Allocate(Size<uint32_t> size, PixelFormat fm
 
 	if (data == nullptr)
 		ThrowException(cpio::CapioException, "Out of memory!");
+
+	this->imageSize = size;
+	this->fmt = fmt;
+	this->stride = stride;
 }
 
 void* cpio::SystemMemoryImageBuffer::GetData()
@@ -141,7 +172,7 @@ cpio::Image::Image(Size<uint32_t> size, PixelFormat fmt)
 
 cpio::Image::Image(const Image& rhs)
 {
-	buffer = AllocateDefault(rhs.GetImageBuffer().GetSize(), rhs.GetImageBuffer().GetPixelFormat());
+	buffer = AllocateDefault(rhs.GetImageBuffer()->GetSize(), rhs.GetImageBuffer()->GetPixelFormat());
 	rhs.CopyTo(*this);
 }
 
@@ -195,21 +226,19 @@ cpio::Rectangle<uint32_t> cpio::Image::GetRoi() const
 		return roi;
 
 	auto size = buffer->GetSize();
-	return cpio::Rectangle<uint32_t>{0, 0, size.width, size.height};
+	return cpio::Rectangle<uint32_t>(0, 0, size.width, size.height);
 }
 
-const cpio::ImageBuffer& cpio::Image::GetImageBuffer() const
+const cpio::UniquePtr<cpio::ImageBuffer>& cpio::Image::GetImageBuffer() const
 {
 	CAPI_Assert(buffer);
-
-	return *buffer;
+	return buffer;
 }
 
-cpio::ImageBuffer& cpio::Image::GetImageBuffer()
+cpio::UniquePtr<cpio::ImageBuffer>& cpio::Image::GetImageBuffer()
 {
 	CAPI_Assert(buffer);
-
-	return *buffer;
+	return buffer;
 }
 
 cpio::UniquePtr<cpio::ImageBuffer> cpio::Image::AllocateDefault(cpio::Size<uint32_t> size, cpio::PixelFormat fmt)
