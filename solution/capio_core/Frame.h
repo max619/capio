@@ -68,12 +68,12 @@ namespace cpio
 
 	constexpr uint8_t GetChannelsCount(PixelFormat fmt)
 	{
-		return (uint8_t)(((uint16_t)(fmt) >> 6) & 0b00000111);
+		return (uint8_t)(((uint16_t)(fmt) >> 7) & 0b00000111);
 	}
 
 	constexpr PixelSequence GetPixelSequence(PixelFormat fmt)
 	{
-		return (PixelSequence)(((uint16_t)(fmt) >> 6));
+		return (PixelSequence)(((uint16_t)(fmt) >> 7));
 	}
 
 	constexpr size_t GetDataFormatSize(DataFormat fmt)

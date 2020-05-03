@@ -175,9 +175,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PixFormatsTests.cpp" />
     <ClCompile Include="UniquePtrTest.cpp" />
+    <ClCompile Include="WindowVideoSourceTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MemLeakTest.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

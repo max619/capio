@@ -151,10 +151,13 @@
     <ClInclude Include="Frame.h" />
     <ClInclude Include="SmartPointers.h" />
     <ClInclude Include="VideoSource.h" />
+    <ClInclude Include="WindowVideoSource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DLLMain.cpp" />
     <ClCompile Include="Frame.cpp" />
+    <ClCompile Include="VideoSource.cpp" />
+    <ClCompile Include="WindowVideoSource.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

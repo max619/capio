@@ -11,7 +11,7 @@ namespace cpio
 {
 
 #ifdef _MSC_VER
-	typedef HANDLE WindowHandle;
+	typedef HWND WindowHandle;
 #endif // _MSC_VER
 
 	//Exception types
